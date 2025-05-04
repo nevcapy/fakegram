@@ -1,0 +1,27 @@
+---
+import "../assets/css/global.css";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import SEO from "../components/SEO.astro";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props as Props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <SEO {title} {description} />
+  </head>
+  <body>
+    <div class="bg-white min-h-screen">
+      <Header />
+      <slot />
+      <Footer />
+    </div>
+  </body>
+</html>

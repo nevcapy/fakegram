@@ -1,0 +1,57 @@
+---
+import { Image } from "astro:assets";
+import Avatar from "../assets/images/avatar.jpg";
+
+const category = {
+  design: import.meta.glob("/src/assets/images/design/*.{png,jpg,jpeg,webp}", {
+    eager: true,
+  }),
+  irl: import.meta.glob("/src/assets/images/irl/*.{png,jpg,jpeg,webp}", {
+    eager: true,
+  }),
+  games: import.meta.glob("/src/assets/images/games/*.{png,jpg,jpeg,webp}", {
+    eager: true,
+  }),
+};
+
+const totalImages = Object.values(category).reduce(
+  (sum, images) => sum + Object.keys(images).length,
+  0,
+);
+---
+
+<section
+  class="flex flex-col md:flex-row items-start md:items-center gap-6 py-6"
+>
+  <div
+    class="w-20 h-20 md:w-36 md:h-36 rounded-full overflow-hidden border border-gray-200 flex-shrink-0"
+  >
+    <Image
+      src={Avatar}
+      alt="Profile picture"
+      draggable="false"
+      class="w-full h-full object-cover"
+    />
+  </div>
+  <div class="flex-1">
+    <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+      <h2 class="text-xl font-medium">nevcapy</h2>
+      <a title="See Instagram" target="_blank" rel="noopener">
+        <button
+          class="px-4 py-1.5 bg-gray-100 rounded-md text-sm font-medium cursor-pointer"
+        >
+          See Instagram
+        </button>
+      </a>
+    </div>
+    <div class="flex gap-6 mb-4 text-sm">
+      <div><span class="font-semibold">{totalImages}</span> posts</div>
+      <div><span class="font-semibold">20+</span> followers</div>
+      <div><span class="font-semibold">0</span> following</div>
+    </div>
+    <div class="text-sm mb-2">
+      <p class="font-bold">Nev</p>
+      <p>Just an photos lover</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,127 @@
+---
+import { Image } from "astro:assets";
+
+const category = {
+  design: import.meta.glob("/src/assets/images/design/*.{png,jpg,jpeg,webp}", {
+    eager: true,
+  }),
+  irl: import.meta.glob("/src/assets/images/irl/*.{png,jpg,jpeg,webp}", {
+    eager: true,
+  }),
+  games: import.meta.glob("/src/assets/images/games/*.{png,jpg,jpeg,webp}", {
+    eager: true,
+  }),
+};
+
+const formatFileName = (img) => {
+  if (!img || !img.src) return "Unknown image";
+
+  let filePath = img.src.split("?")[0];
+  let fileName = filePath.split("/").pop();
+
+  fileName = fileName.replace(/(\.[A-Za-z0-9]{8})(?=\.[^.]+$)/, "");
+
+  fileName = fileName.replace(/\.[^/.]+$/, "");
+
+  fileName = fileName.replace(/[_-]/g, " ");
+
+  return fileName.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const allImages: {
+  src: any;
+  alt: string;
+  title: any;
+  category: string;
+  lastModified: any;
+}[] = [];
+Object.entries(category).forEach(([cat, images]) => {
+  Object.values(images).forEach((img) => {
+    allImages.push({
+      src: img.default.src,
+      alt: `[${cat}] ${formatFileName(img.default)}`,
+      title: formatFileName(img.default),
+      category: cat,
+      lastModified: img.default.lastModified || img.default.src,
+    });
+  });
+});
+
+allImages.sort((a, b) => (a.lastModified > b.lastModified ? 1 : -1));
+const shuffledImages: unknown[] = [];
+const categoryGroups = Object.values(category).map((imgs) =>
+  Object.values(imgs),
+);
+
+while (categoryGroups.some((group) => group.length)) {
+  categoryGroups.forEach((group) => {
+    if (group.length) {
+      shuffledImages.push(group.shift());
+    }
+  });
+}
+---
+
+<section class="grid grid-cols-3 gap-1 mt-1">
+  {
+    shuffledImages.map((img, index) => (
+      <a
+        href={img.default.src}
+        title={`See "${formatFileName(img.default)}" in new tab (bigger)`}
+        target="_blank"
+        rel="noopener"
+      >
+        <div
+          class="aspect-square relative group cursor-pointer"
+          tabindex={index + 1}
+        >
+          <Image
+            src={img.default}
+            alt={`${img.default} [${img.category}]`}
+            width={400}
+            height={400}
+            loading="lazy"
+            draggable="false"
+            class="w-full h-full object-cover"
+          />
+
+          <div class="image-overlay" />
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <p class="text-white font-bold text-xl text-shadow">
+              {formatFileName(img.default)}
+            </p>
+          </div>
+        </div>
+      </a>
+    ))
+  }
+</section>
+
+<style>
+  .image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .group:hover .image-overlay {
+    opacity: 1;
+  }
+
+  .text-shadow {
+    text-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.8),
+      0 0 2px rgba(0, 0, 0, 0.6);
+  }
+
+  [tabindex] {
+    outline: none;
+  }
+
+  [tabindex]:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+</style>
